@@ -7,7 +7,12 @@ echo "Updating the system..."
 sudo pacman -Syu --noconfirm
 
 echo "Enabling multilib repository..."
-sudo sed -i '/\[multilib\]/,/^Include/ s/^#//' /etc/pacman.conf
+# Only uncomment [multilib] and the next Include line
+sudo sed -i '/^\#
+
+\[multilib\]
+
+/ { s/^#//; n; s/^#// }' /etc/pacman.conf
 
 echo "Updating package lists after enabling multilib..."
 sudo pacman -Sy --noconfirm
