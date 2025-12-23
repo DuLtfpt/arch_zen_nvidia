@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to install NVIDIA drivers, AUR helper (yay), enable multilib, configure GRUB,
-# set up early NVIDIA module loading, and configure pacman hook on Arch Linux
+# set up early NVIDIA module loading, and configure pacman hook on Arch Linux for Turing cards (NV160/TUXXX)
 
 echo "Updating the system..."
 sudo pacman -Syu --noconfirm
@@ -39,11 +39,12 @@ sudo sed -i 's/\<kms\>//g' /etc/mkinitcpio.conf
 echo "Regenerating initramfs..."
 sudo mkinitcpio -P
 
-echo "Downloading and configuring nvidia.hook..."
+echo "Downloading and configuring nvidia.hook for proper integration..."
 cd ~
 wget https://raw.githubusercontent.com/korvahannu/arch-nvidia-drivers-installation-guide/main/nvidia.hook
 
 echo "Editing nvidia.hook file..."
+# Modify hook for the correct kernel type and driver
 sudo sed -i 's/Target=linux/Target=linux-zen/' nvidia.hook
 sudo sed -i 's/Target=nvidia/Target=nvidia-dkms/' nvidia.hook
 
@@ -51,8 +52,12 @@ echo "Moving nvidia.hook to /etc/pacman.d/hooks/"
 sudo mkdir -p /etc/pacman.d/hooks/
 sudo mv ./nvidia.hook /etc/pacman.d/hooks/
 
+# Additional Turing-specific configurations
+echo "Installing Turing-specific kernel modules (if applicable)..."
+yay -S --noconfirm nvidia-dkms-headers
+
 echo "Installation complete. Rebooting the system is recommended."
 
-# Optional: Reboot the system
+# Optional: Reboot the system automatically (uncomment to enable)
 # echo "Rebooting the system..."
 # sudo reboot
